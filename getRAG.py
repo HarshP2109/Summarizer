@@ -39,7 +39,8 @@ async def get_conversational_chain():
     return chain
 
 async def user_input(user_question, location):
-    key = os.getenv("GOOGLE_API_KEY")
+    # key = os.getenv("GOOGLE_API_KEY")
+    key = st.secrets["gemini_key"]
     # Create embeddings for the user question using a Google Generative AI model
     embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001",google_api_key=key)
     print(location)

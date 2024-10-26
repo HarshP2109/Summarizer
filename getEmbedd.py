@@ -55,8 +55,9 @@ def split_text(text: str):
 
 async def get_vector_store(text_chunks):
     # Create embeddings using a Google Generative AI model
-    api_key = os.getenv("GOOGLE_API_KEY")
-    print(api_key)
+    # api_key = os.getenv("GOOGLE_API_KEY")
+    api_key = st.secrets["gemini_key"]
+    # print(api_key)
     embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001", api_key=api_key)
 
     # Create a vector store using FAISS from the provided text chunks and embeddings
