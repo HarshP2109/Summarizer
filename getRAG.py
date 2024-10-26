@@ -10,13 +10,14 @@ import os
 
 load_dotenv()
 
-
+def removeBold(string):
+  return string.replace("**", "").replace("###", "").replace("##", "")
 
 async def get_conversational_chain():
     # Define a prompt template for asking questions based on a given context
     prompt_template = """
     Answer the question as detailed as possible from the provided context, make sure to provide all the details,
-    if the answer is not in the provided context just say, "answer is not available in the context", don't provide the wrong answer\n\n
+     don't provide the wrong answer\n\n
     Context:\n {context}?\n
     Question: \n{question}\n
 
@@ -37,13 +38,13 @@ async def get_conversational_chain():
 
     return chain
 
-async def user_input(user_question):
-    key = st.secrets["gemini_key"]
+async def user_input(user_question, location):
+    key = os.getenv("GOOGLE_API_KEY")
     # Create embeddings for the user question using a Google Generative AI model
     embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001",google_api_key=key)
-    # print(1)
+    print(location)
     # Load a FAISS vector database from a local file
-    new_db = FAISS.load_local("faiss_index", embeddings, allow_dangerous_deserialization=True)
+    new_db = FAISS.load_local(location, embeddings, allow_dangerous_deserialization=True)
     # print(2)
     # Perform similarity search in the vector database based on the user question
     docs = new_db.similarity_search(user_question, k=3)
@@ -59,7 +60,7 @@ async def user_input(user_question):
     # Print the response to the console
     print(response["output_text"])
 
-    return response["output_text"]
+    return removeBold(response["output_text"])
 
     # Display the response in a Streamlit app (assuming 'st' is a Streamlit module)
     # st.write("Reply: ", response["output_text"])

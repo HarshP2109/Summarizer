@@ -1,6 +1,7 @@
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain.chains.question_answering import load_qa_chain
+import tempfile
 # import google.generativeai as genai
 import streamlit as st
 import re
@@ -54,7 +55,7 @@ def split_text(text: str):
 
 async def get_vector_store(text_chunks):
     # Create embeddings using a Google Generative AI model
-    api_key = st.secrets["gemini_key"]
+    api_key = os.getenv("GOOGLE_API_KEY")
     print(api_key)
     embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001", api_key=api_key)
 
@@ -62,7 +63,13 @@ async def get_vector_store(text_chunks):
     vector_store = FAISS.from_texts(text_chunks, embedding=embeddings)
 
     # Save the vector store locally with the name "faiss_index"
-    vector_store.save_local("faiss_index")
+    # vector_store.save_local("faiss_index")
+    tempdir = tempfile.mkdtemp()
+    vector_store_path = os.path.join(tempdir, "faiss")
+    vector_store.save_local(vector_store_path)
+
+    return vector_store_path
+
 
 
 # text = load_pdf(file_path="/content/The Complete Book of Ayurvedic Home Remedies.pdf")
@@ -72,6 +79,6 @@ async def generateEmbedding(file_text):
     print("vector Embediing 1")
     text_chunks = split_text(text)
     print("vector Embediing 2")
-    await get_vector_store(text_chunks)
+    location = await get_vector_store(text_chunks)
     print("vector Embediing 3")
-    return "faiss_index"
+    return location
